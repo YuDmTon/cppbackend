@@ -5,5 +5,5 @@ int main() {
     std::cin >> x >> y;
     // Выведите сумму чисел x и y в std::cout.
     int z = x + y;
-    std::cout << z  << '\n';
+    std::cout << z << '\n';
 }
