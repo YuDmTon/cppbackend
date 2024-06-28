@@ -121,9 +121,9 @@ void HandleConnection(tcp::socket& socket, RequestHandler&& handle_request) {
 
         // Продолжаем обработку запросов, пока клиент их отправляет
         while (auto request = ReadRequest(socket, buffer)) {
-            DumpRequest(*request);
+//            DumpRequest(*request);
             StringResponse response = handle_request(*std::move(request));
-            DumpResponse(response);
+//            DumpResponse(response);
             http::write(socket, response);
             if (response.need_eof()) {
                 break;
