@@ -4,7 +4,6 @@
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/write.hpp>
-#include <iostream>
 
 // Boost.Beast будет использовать std::string_view вместо boost::string_view
 #define BOOST_BEAST_USE_STD_STRING_VIEW
@@ -12,6 +11,9 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/http.hpp> 
 
+#include <iostream>
+#include <optional>
+#include <string_view>
 #include <thread>
 
 namespace net = boost::asio;
