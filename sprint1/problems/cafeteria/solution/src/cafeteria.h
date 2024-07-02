@@ -44,7 +44,7 @@ public:
 private:
     void FrySausage() {
         net::post(io_, [self = shared_from_this()] () {
-            self->sausage_timer_.expires_after(HotDog::MIN_SAUSAGE_COOK_DURATION);
+//            self->sausage_timer_.expires_after(HotDog::MIN_SAUSAGE_COOK_DURATION);
             self->sausage_->StartFry(*(self->gas_cooker_), [self] () {
                 self->sausage_timer_.expires_after(HotDog::MIN_SAUSAGE_COOK_DURATION);
                 self->sausage_timer_.async_wait([self](sys::error_code ec) {
@@ -61,7 +61,7 @@ private:
     
     void BakeBread() {
         net::post(io_, [self = shared_from_this()] () {
-            self->bread_timer_.expires_after(HotDog::MIN_BREAD_COOK_DURATION);
+//            self->bread_timer_.expires_after(HotDog::MIN_BREAD_COOK_DURATION);
             self->bread_->StartBake(*(self->gas_cooker_), [self] () {
                 self->bread_timer_.expires_after(HotDog::MIN_BREAD_COOK_DURATION);
                 self->bread_timer_.async_wait([self](sys::error_code ec) {
