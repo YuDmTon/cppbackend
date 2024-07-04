@@ -54,11 +54,11 @@ public:
             return;
         }
         if ( target == "/api/v1/maps" ) {
-            body   = json_loader::GetIdList(game_.json_str);
+            body   = json_loader::GetIdList(game_.GetJsonStr());
             send(text_response(status, body));
             return;
         }
-        body = json_loader::GetMap(game_.json_str, target.substr(13));
+        body = json_loader::GetMap(game_.GetJsonStr(), target.substr(13));
         if ( body.empty() ) {
             status = http::status::not_found;
             body = json_loader::NotFound();

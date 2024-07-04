@@ -10,6 +10,10 @@ namespace fs   = std::filesystem;
 ///////////////////////////////////////////
 std::string ReadFile(const fs::path& path) {
     std::ifstream f(path, std::ios::in | std::ios::binary);
+    if ( !f ) {
+        std::string err = "Can't open file '" + path.string() + "'";
+        throw std::runtime_error(err);
+    }
     const auto sz = fs::file_size(path);
     std::string result(sz, '\0');
     f.read(result.data(), sz);
@@ -18,8 +22,7 @@ std::string ReadFile(const fs::path& path) {
 
 model::Game LoadGame(const fs::path& json_path) {
     model::Game game;
-    game.json_str = ReadFile(json_path);
-    
+    game.SetJsonStr(ReadFile(json_path));
     return game;
 }
 
@@ -38,7 +41,7 @@ std::string BadRequest() {
     return json::serialize(result);
 }
 
-std::string GetIdList(std::string json_str) {
+std::string GetIdList(const std::string& json_str) {
     auto maps = json::parse(json_str);
     json::array result;
     for (const auto& map : maps.as_object().at("maps").as_array()) {
@@ -50,12 +53,11 @@ std::string GetIdList(std::string json_str) {
     return json::serialize(result);
 }
 
-std::string GetMap(std::string json_str, std::string id) {
-    auto maps = json::parse(json_str);
-    for (const auto& map : maps.as_object().at("maps").as_array()) {
-        if ( id == map.as_object().at("id").as_string() ) {
-            return json::serialize(map);
-        }
+std::string GetMap(const std::string& json_str, const std::string& id) {
+    auto maps  = json::parse(json_str).as_object().at("maps").as_array();
+    auto is_id = [id](auto map) { return id == map.as_object().at("id").as_string(); };
+    if (auto it = std::find_if(maps.begin(), maps.end(), is_id); it != maps.end()) {
+        return json::serialize(*it);
     }
     return ""s;
 }

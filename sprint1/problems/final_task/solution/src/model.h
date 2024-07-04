@@ -169,8 +169,6 @@ private:
 
 class Game {
 public:
-    std::string json_str; // TODO !!!
-    
     using Maps = std::vector<Map>;
 
     void AddMap(Map map);
@@ -186,12 +184,16 @@ public:
         return nullptr;
     }
 
+    void SetJsonStr(const std::string& json_str) { json_str_ = json_str; }
+    std::string GetJsonStr() { return json_str_; }
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
 
     std::vector<Map> maps_;
     MapIdToIndex map_id_to_index_;
+    //
+    std::string json_str_; // TODO !!!
 };
 
 }  // namespace model
