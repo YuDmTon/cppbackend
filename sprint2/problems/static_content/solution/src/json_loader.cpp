@@ -23,23 +23,23 @@ std::string ReadFile(const fs::path& path) {
 }
 
 model::Game LoadGame(const fs::path& json_path, const fs::path& root_dir) {
-    model::Game game;
-    game.SetJsonStr(ReadFile(json_path));
+    fs::path abs_srvr = fs::current_path();
+    abs_srvr += "/";
+    fs::path abs_json = abs_srvr;
+    abs_json += json_path.string();
+    abs_json  = fs::weakly_canonical(abs_json);
+    fs::path abs_root = abs_srvr;
+    abs_root += root_dir.string();
+    abs_root  = fs::weakly_canonical(abs_root);
     //
-    fs::path server_root = fs::current_path();
-    server_root += "/";
-    std::string root_str = root_dir.string();
-    if ( root_str.size() != 0 && root_str[root_str.size() - 1] == '/' ) {
-        root_str = root_str.substr(0, root_str.size() - 1);
-    }
-    server_root += root_str;
-    server_root = fs::weakly_canonical(server_root);
-//std::cout << "Server root = '" << server_root.string() << "'" << std::endl;
-    if ( !fs::is_directory(server_root) ) {
-        std::string err = "Directory '" + server_root.string() + "' doesn't exist";
+    model::Game game;
+    game.SetJsonStr(ReadFile(abs_json));
+    //
+    if ( !fs::is_directory(abs_root) ) {
+        std::string err = "Root server directory '" + abs_root.string() + "' doesn't exist";
         throw std::runtime_error(err);
     }
-    game.SetRootDir(server_root.string());
+    game.SetRootDir(abs_root.string());
     return game;
 }
 
