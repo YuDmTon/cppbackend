@@ -23,14 +23,26 @@ std::string ReadFile(const fs::path& path) {
 }
 
 model::Game LoadGame(const fs::path& json_path, const fs::path& root_dir) {
+//std::cout << "json_path = '" << json_path.string() << "'" << std::endl;
+//std::cout << "root_dir  = '" << root_dir.string()  << "'" << std::endl;
     fs::path abs_srvr = fs::current_path();
     abs_srvr += "/";
-    fs::path abs_json = abs_srvr;
-    abs_json += json_path.string();
-    abs_json  = fs::weakly_canonical(abs_json);
-    fs::path abs_root = abs_srvr;
-    abs_root += root_dir.string();
-    abs_root  = fs::weakly_canonical(abs_root);
+    fs::path abs_json = json_path;
+    if ( abs_json.string()[0] != '/' ) {
+        abs_json  = abs_srvr;
+        abs_json += json_path.string();
+        abs_json  = fs::weakly_canonical(abs_json);
+    }
+    fs::path abs_root = root_dir;
+    if ( abs_root.string()[0] != '/' ) {
+        abs_root  = abs_srvr;
+        abs_root += root_dir.string();
+        abs_root  = fs::weakly_canonical(abs_root);
+    }
+//std::cout << "abs_srvr = '" << abs_srvr.string() << "'" << std::endl;
+//std::cout << "abs_json = '" << abs_json.string() << "'" << std::endl;
+//std::cout << "abs_root = '" << abs_root.string() << "'" << std::endl;
+//std::cout << "abs_root is directory = " << std::boolalpha << fs::is_directory(abs_root) << std::endl;
     //
     model::Game game;
     game.SetJsonStr(ReadFile(abs_json));
