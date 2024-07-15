@@ -12,8 +12,4 @@ COPY ./static /app/static
 COPY ./data /app/data
 COPY CMakeLists.txt conanfile.txt /app/
 
-# новая команда для сборки сервера:
-RUN mkdir /app/build && cd /app/build && \
-    conan install .. --build=missing && \
-    cmake -DCMAKE_BUILD_TYPE=Release .. && \
-    cmake --build .
+RUN mkdir /app/build && cd /app/build && conan install .. -s compiler.libcxx=libstdc++11 && cmake -DCMAKE_BUILD_TYPE=Debug .. && cmake --build .
