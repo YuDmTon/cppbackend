@@ -109,7 +109,7 @@ std::string GetMap(const std::string& json_str, const std::string& id) {
 //// Logs ///////////////////////////////
 void LogInit() {
     logging::add_console_log( 
-        std::clog,
+        std::cout,
         keywords::format     = &GameLogFormatter,
         keywords::auto_flush = true
     );
