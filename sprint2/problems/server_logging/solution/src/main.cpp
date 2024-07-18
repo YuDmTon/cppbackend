@@ -74,7 +74,7 @@ int main(int argc, const char* argv[]) {
         });
         json_loader::LogStop(); 
     } catch (const std::exception& ex) {
-//        std::cerr << ex.what() << std::endl;
+        std::cerr << ex.what() << std::endl;
         json_loader::LogStop(EXIT_FAILURE, ex.what()); 
         return EXIT_FAILURE;
     }
