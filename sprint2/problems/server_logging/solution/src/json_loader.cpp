@@ -7,6 +7,7 @@
 #include <boost/date_time.hpp>                              // BOOST_LOG_ATTRIBUTE_KEYWORD
 #include <boost/log/trivial.hpp>                            // для BOOST_LOG_TRIVIAL
 #include <boost/log/utility/setup/console.hpp>              // для вывода в консоль
+#include <boost/log/utility/setup/file.hpp>                 // для вывода в файл
 #include <boost/log/utility/manipulators/add_value.hpp>     // logging::add_value
 
 namespace json     = boost::json;
@@ -120,6 +121,15 @@ std::string GetMap(const std::string& json_str, const std::string& id) {
 
 //// Logs ///////////////////////////////
 void LogInit() {
+/*
+    logging::add_file_log(
+        keywords::file_name  = "game_server.log", 
+        keywords::format     = &GameLogFormatter,
+        keywords::open_mode  = std::ios_base::app | std::ios_base::out,
+        keywords::auto_flush = true
+    );  
+*/
+    //
     logging::add_console_log( 
         std::cout,
         keywords::format     = &GameLogFormatter,
