@@ -118,6 +118,14 @@ std::string GetMap(const std::string& json_str, const std::string& id) {
     return ""s;
 }
 
+std::string MapNotFound() {
+    json::object result;
+    result["code"] = "mapNotFound"s;
+    result["name"] = "Map not found"s;
+    return json::serialize(result);
+}
+
+
 
 //// Logs ///////////////////////////////
 void LogInit() {

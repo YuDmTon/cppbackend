@@ -27,8 +27,9 @@ using StringResponse = http::response<http::string_body>;
 
 struct ContentType {
     ContentType() = delete;
-    constexpr static std::string_view TEXT_HTML = "text/html"sv;
-    constexpr static std::string_view APP_JSON  = "application/json"sv;
+    constexpr static std::string_view APP_JSON   = "application/json"sv;
+    constexpr static std::string_view TEXT_HTML  = "text/html"sv;
+    constexpr static std::string_view TEXT_PLAIN = "text/plain"sv;
     // При необходимости внутрь ContentType можно добавить и другие типы контента
 };
 
@@ -66,7 +67,7 @@ public:
                     body = json_loader::GetMap(game_.GetJsonStr(), target.substr(13));
                     if ( body.empty() ) {
                         status = http::status::not_found;
-                        body = json_loader::NotFound();
+                        body   = json_loader::MapNotFound();
                     }
                 }
                 else {
@@ -84,11 +85,11 @@ public:
                 status = http::status::bad_request;
                 body   = json_loader::BadRequest();
             } else if ( !std::filesystem::exists(wanted_file) ) {
-                status = http::status::not_found;
-                body = json_loader::NotFound();
+                content_type = ContentType::TEXT_PLAIN;
+                status       = http::status::not_found;
+                body         = json_loader::NotFound();
             } else {
                 content_type = GetMime(wanted_file);
-                body         = "?!";
                 /////
                 http::response<http::file_body> res;
                 res.version(11);  // HTTP/1.1

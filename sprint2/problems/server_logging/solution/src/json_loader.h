@@ -20,6 +20,7 @@ std::string NotFound();
 std::string BadRequest();
 std::string GetIdList(const std::string& json_str);
 std::string GetMap(const std::string& json_str, const std::string& id);
+std::string MapNotFound();
 
 //// Logs /////////
 void LogInit();
