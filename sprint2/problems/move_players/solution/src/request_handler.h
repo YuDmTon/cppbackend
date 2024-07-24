@@ -12,11 +12,11 @@ public:
 
     explicit RequestHandler(Strand api_strand, app::Application& app, /*const*/ fs::path& root)
             : api_strand_(api_strand), api_(app), root_(root) {
-        std::string root = root_.string();
-        if ( root[root.size() - 1] == '/' ) {
-            root = root.substr(0, root.size() - 1);
+        std::string r = root_.string();
+        if ( r[r.size() - 1] == '/' ) {
+            r = r.substr(0, r.size() - 1);
         }
-        root_ = root;
+        root_ = r;
     }
 
     RequestHandler(const RequestHandler&) = delete;
