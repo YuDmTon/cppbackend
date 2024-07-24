@@ -1,7 +1,8 @@
 #pragma once
+
 #include "api_handler.h"
+#include "app.h"
 #include "http_server.h"
-#include "model.h"
 
 namespace http_handler {
 
@@ -9,8 +10,8 @@ class RequestHandler : public std::enable_shared_from_this<RequestHandler>  {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    explicit RequestHandler(Strand api_strand, model::Game& game, const fs::path& root, logic::Players& players)
-        : api_strand_(api_strand), api_{game, players}, root_(root) {
+    explicit RequestHandler(Strand api_strand, app::Application& app, const fs::path& root)
+        : api_strand_(api_strand), api_(app), root_(root) {
     }
 
     RequestHandler(const RequestHandler&) = delete;
@@ -39,7 +40,7 @@ public:
                     throw std::runtime_error(err);
                 }
             };
-*/
+//*/
             response = api_.Response(req);  // without strand
         } else {                        // get static content /////////////////////////////
             std::string wanted_file = root_.string() + target;

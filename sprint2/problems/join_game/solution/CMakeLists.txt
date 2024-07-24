@@ -29,12 +29,13 @@ add_executable(game_server
         src/request_handler.cpp
         src/request_handler.h
         # ---
-        src/logger.h
-        src/logger.cpp
         src/api_handler.h
         src/api_handler.cpp
-        src/logic.h
-        src/logic.cpp
+        src/app.h
+        src/app.cpp
+        src/logger.h
+        src/logger.cpp
+        src/response.h
 )
 # используем "импортированную" цель CONAN_PKG::boost
 target_include_directories(game_server PRIVATE CONAN_PKG::boost)

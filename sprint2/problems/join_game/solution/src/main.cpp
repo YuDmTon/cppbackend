@@ -8,6 +8,7 @@
 #include <iostream>
 #include <thread>
 
+#include "app.h"
 #include "json_loader.h"
 #include "logger.h"
 #include "request_handler.h"
@@ -71,6 +72,7 @@ int main(int argc, const char* argv[]) {
         // 1. Загружаем карту из файла и построить модель игры
         model::Game game = json_loader::LoadGame(GetAndCheckPath(argv[1], false));
         fs::path    root = GetAndCheckPath(argv[2], true);
+        app::Application app(game);
 
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
@@ -85,9 +87,8 @@ int main(int argc, const char* argv[]) {
         });
 
         // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
-        logic::Players players;
-        auto           api_strand = net::make_strand(ioc);
-        http_handler::RequestHandler handler{api_strand, game, root, players};
+        auto api_strand = net::make_strand(ioc);
+        http_handler::RequestHandler handler{api_strand, app, root};
 
         // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         const auto address = net::ip::make_address("0.0.0.0");

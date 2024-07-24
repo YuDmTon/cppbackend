@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -7,19 +8,51 @@
 #include "tagged.h"
 
 namespace model {
-/*
+
+//// Aux ///////////////////////////////////////////////////////////////////////////
+enum Direction {
+    NORTH,          // U
+    SOUTH,          // D
+    WEST,           // L
+    EAST,           // R
+};
+
+std::string DirSign(Direction dir);
+
+struct Position {
+    double x = 0;
+    double y = 0;
+};
+
+struct Speed {
+    double sx = 0;
+    double sy = 0;
+};
+
+double GetRandom(double from, double to);
+
 //// Dog ///////////////////////////////////////////////////////////////////////////
 class Dog {
 public:
-    explicit Dog(std::string name) : name_(name), id_(ID++) { }
+    Dog() = default;
+    explicit Dog(std::string name, uint32_t id) : name_(name), id_(id) { 
+        pos_.x = GetRandom(0, 100);
+        pos_.y = GetRandom(0, 100);
+    }
     const std::string GetName() const { return name_; }
-    const uint32_t    GetId() const { return id_; }
+    const uint32_t GetId() const { return id_; }
+    Position GetPosition() const { return pos_; }
+    Speed GetSpeed() const { return speed_; }
+    std::string GetDir() const { return DirSign(dir_); }
 private:
     std::string name_;
     uint32_t    id_;
-    static uint32_t ID;
+    //
+    Position    pos_{0, 0};
+    Speed       speed_{0, 0};
+    Direction   dir_{NORTH};
 };
-
+/*
 //// GameSession ///////////////////////////////////////////////////////////////////
 class Map;
 

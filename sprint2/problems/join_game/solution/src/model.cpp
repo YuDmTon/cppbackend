@@ -5,6 +5,26 @@
 namespace model {
 using namespace std::literals;
 
+//// Aux ///////////////////////////////////////////////////////////////////////////
+std::string DirSign(Direction dir) {
+    switch ( dir ) {
+        case NORTH: return "U"s;
+        case SOUTH: return "D"s;
+        case WEST:  return "L"s;
+        case EAST:  return "R"s;
+    }
+    return "?"s;
+}
+
+double GetRandom(double from, double to) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(from, to);
+    return dis(gen);
+}    
+
+
+//// Model /////////////////////////////////////////////////////////////////////////
 void Map::AddOffice(Office office) {
     if (warehouse_id_to_index_.contains(office.GetId())) {
         throw std::invalid_argument("Duplicate warehouse");
