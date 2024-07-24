@@ -11,6 +11,10 @@ bool Application::GetMap(const std::string& map_id, std::string& res_body) {
     auto maps  = json::parse(config).as_object().at("maps").as_array();
     auto is_id = [map_id](auto map) { return map_id == map.as_object().at("id").as_string(); };
     if (auto it = std::find_if(maps.begin(), maps.end(), is_id); it != maps.end()) {
+        try {
+            it->as_object().erase("dogSpeed");
+        } catch (...) {
+        }
         res_body = json::serialize(*it);
         return true;
     }

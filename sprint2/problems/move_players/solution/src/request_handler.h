@@ -10,8 +10,13 @@ class RequestHandler : public std::enable_shared_from_this<RequestHandler>  {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    explicit RequestHandler(Strand api_strand, app::Application& app, const fs::path& root)
-        : api_strand_(api_strand), api_(app), root_(root) {
+    explicit RequestHandler(Strand api_strand, app::Application& app, /*const*/ fs::path& root)
+            : api_strand_(api_strand), api_(app), root_(root) {
+        std::string root = root_.string();
+        if ( root[root.size() - 1] == '/' ) {
+            root = root.substr(0, root.size() - 1);
+        }
+        root_ = root;
     }
 
     RequestHandler(const RequestHandler&) = delete;
@@ -44,6 +49,9 @@ public:
             response = api_.Response(req);  // without strand
         } else {                        // get static content /////////////////////////////
             std::string wanted_file = root_.string() + target;
+//std::cout << "root   = '" << root.string() << "'" << std::endl;
+//std::cout << "target = '" << target << "'" << std::endl;
+//std::cout << "wanted = '" << wanted_file << "'" << std::endl;
             if ( target == "/" ) {
                 wanted_file += "index.html";
             }
@@ -140,7 +148,7 @@ private:
 private:
     Strand          api_strand_;
     ApiHandler      api_;
-    const fs::path& root_;
+    /*const*/ fs::path& root_;
 };
 
 }  // namespace http_handler
