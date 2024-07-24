@@ -40,12 +40,17 @@ private:
 
 //// PlayerToken Generator ////////////////////////////////////////////////////////////////////////
 class PlayerToken {
+    constexpr static size_t TOKEN_SIZE = 32;
 public:
     PlayerToken() = default;
     std::string Get() {
         std::ostringstream oss;
         oss << std::hex << generator1_() << generator2_();
-        return oss.str();
+        std::string token = oss.str();
+        while ( token.size() < TOKEN_SIZE ) {
+            token = "0" + token;
+        }
+        return token;
     }
 private:
     std::random_device random_device_;
