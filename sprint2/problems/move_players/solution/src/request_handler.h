@@ -10,13 +10,8 @@ class RequestHandler : public std::enable_shared_from_this<RequestHandler>  {
 public:
     using Strand = net::strand<net::io_context::executor_type>;
 
-    explicit RequestHandler(Strand api_strand, app::Application& app, /*const*/ fs::path& root)
+    explicit RequestHandler(Strand api_strand, app::Application& app, const fs::path& root)
             : api_strand_(api_strand), api_(app), root_(root) {
-        std::string r = root_.string();
-        if ( r[r.size() - 1] == '/' ) {
-            r = r.substr(0, r.size() - 1);
-        }
-        root_ = r;
     }
 
     RequestHandler(const RequestHandler&) = delete;
@@ -148,7 +143,7 @@ private:
 private:
     Strand          api_strand_;
     ApiHandler      api_;
-    /*const*/ fs::path& root_;
+    const fs::path& root_;
 };
 
 }  // namespace http_handler

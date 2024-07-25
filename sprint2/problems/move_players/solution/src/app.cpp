@@ -6,33 +6,23 @@ namespace app {
 
 // фасад для api_handler
 bool Application::GetMap(const std::string& map_id, std::string& res_body) {
-    std::string config = game_.GetConfig();
-    //
-    auto maps  = json::parse(config).as_object().at("maps").as_array();
-    auto is_id = [map_id](auto map) { return map_id == map.as_object().at("id").as_string(); };
-    if (auto it = std::find_if(maps.begin(), maps.end(), is_id); it != maps.end()) {
-        try {
-            it->as_object().erase("dogSpeed");
-        } catch (...) {
-        }
-        res_body = json::serialize(*it);
-        return true;
+    const model::Map* map = game_.FindMap(model::Map::Id(map_id));
+    if ( map == nullptr ) {
+        return false;
     }
-    return false;
+    res_body = map->Serialize();
+    return true;
 }
 
 bool Application::GetMaps(std::string& res_body) {
-    std::string  config = game_.GetConfig();
-    //
-    auto maps = json::parse(config);
-    json::array result;
-    for (const auto& map : maps.as_object().at("maps").as_array()) {
-        json::object id;
-        id["id"]   = map.as_object().at("id");
-        id["name"] = map.as_object().at("name");
-        result.push_back(id);
+    json::array json_maps;
+    for (const auto& map : game_.GetMaps()) {
+        json::object json_map;
+        json_map["id"]   = *map.GetId();
+        json_map["name"] =  map.GetName();
+        json_maps.push_back(json_map);
     }
-    res_body = json::serialize(result);
+    res_body = json::serialize(json_maps);
     return true;
 }
 
@@ -102,7 +92,12 @@ bool Application::Move(const std::string& token, const std::string& move, std::s
         return false;
     }
     // get speed
-    double speed = GetDogSpeed(player->GetMapId());
+    const model::Map* map = game_.FindMap(model::Map::Id(player->GetMapId()));
+    if ( map == nullptr ) {
+        std::string err = "Can't find player's map";
+        throw std::runtime_error(err);
+    }
+    double speed = map->GetDogSpeed();
     // set speed
     model::Direction dir;
     if ( !model::StrToDir(move, dir) )
@@ -113,37 +108,6 @@ bool Application::Move(const std::string& token, const std::string& move, std::s
     player->SetDogSpeed(speed, dir);
     res_body = "{}";
     return true;
-}
-
-
-//private:  ////////////////////////////////////////////////////////////////////////
-double Application::GetDogSpeed(const std::string& map_id) {
-    std::string  config = game_.GetConfig();
-    //
-    json::value json_obj = json::parse(config).as_object();
-//std::cout << json::serialize(json_obj) << std::endl;
-    
-    double dog_speed = 1;
-    try {
-        dog_speed = json_obj.at("defaultDogSpeed").as_double();
-    } catch (...) {
-//std::cout << "No defaultDogSpeed" << std::endl;
-    }
-//std::cout << "defaultDogSpeed = " << dog_speed << std::endl;
-    
-    json::array maps = json_obj.at("maps").as_array();
-    for (const auto& map : maps) {
-        if ( map.as_object().at("id").as_string() == map_id ) {
-//std::cout << "map '" << map_id << "' is found" << std::endl;
-            try {
-                dog_speed = map.at("dogSpeed").as_double();
-            } catch (...) {
-//std::cout << "No dogSpeed" << std::endl;
-            }
-        }
-    }
-//std::cout << "dogSpeed = " << dog_speed << std::endl;
-    return dog_speed;
 }
 
 }   // namespace app

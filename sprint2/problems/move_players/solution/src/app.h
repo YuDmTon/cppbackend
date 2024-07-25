@@ -5,6 +5,7 @@
 #include <memory>
 #include <random>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -123,10 +124,7 @@ public:
     bool GetState(const std::string& token, std::string& res_body);
     bool CheckDirStr(const std::string& move) { model::Direction dir; return model::StrToDir(move, dir); }
     bool Move(const std::string& token, const std::string& move, std::string& res_body);
-    
-private:
-    double GetDogSpeed(const std::string& map_id);
-    
+
 private:
     model::Game& game_;
     Players      players_;

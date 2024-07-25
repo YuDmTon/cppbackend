@@ -56,7 +56,7 @@ public:
             case EAST:  speed_ = { speed, 0 };
             case STOP:  speed_ = { 0,     0 };
         }
-    }    
+    }
 private:
     std::string name_;
     uint32_t    id_{0xFFFFFFFF};
@@ -191,9 +191,10 @@ public:
     using Buildings = std::vector<Building>;
     using Offices   = std::vector<Office>;
 
-    Map(Id id, std::string name) noexcept
+    Map(Id id, std::string name, double dog_speed) noexcept
         : id_(std::move(id))
-        , name_(std::move(name)) {
+        , name_(std::move(name))
+        , dog_speed_(dog_speed) {
     }
 
     const Id& GetId() const noexcept {
@@ -202,6 +203,10 @@ public:
 
     const std::string& GetName() const noexcept {
         return name_;
+    }
+
+    const double GetDogSpeed() const noexcept {
+        return dog_speed_;
     }
 
     const Buildings& GetBuildings() const noexcept {
@@ -226,6 +231,8 @@ public:
 
     void AddOffice(Office office);
 
+    std::string Serialize() const;
+
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;
 
@@ -236,6 +243,8 @@ private:
 
     OfficeIdToIndex warehouse_id_to_index_;
     Offices offices_;
+
+    double dog_speed_;
 };
 
 class Game {
@@ -255,18 +264,13 @@ public:
         return nullptr;
     }
 
-    // TODO !!!
-    void SetConfig(const std::string& config) { config_ = config; }
-    std::string GetConfig() { return config_; }
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
 
     std::vector<Map> maps_;
     MapIdToIndex map_id_to_index_;
-    //
-    std::string config_; // TODO !!!
-//    std::vector<GameSession> sessions_;
+
 };
 
 }  // namespace model

@@ -56,7 +56,7 @@ private:
 
     bool CheckToken(const StringRequest& req, std::string& token) {
         for (const auto& header : req) {
-            if ( "Authorization" == header.name_string() || "authorization" == header.name_string() ) {
+            if ( header.name() == http::field::authorization ) {
                 token = header.value();
                 break;
             }
