@@ -2,6 +2,9 @@
 
 namespace app {
 
+//// Player ///////////////////////////////////////////////////////////////////////////////////////
+
+
 //// Application //////////////////////////////////////////////////////////////////////////////////
 
 // фасад для api_handler
@@ -26,17 +29,70 @@ bool Application::GetMaps(std::string& res_body) {
     return true;
 }
 
-bool Application::TryJoin(const std::string& user_name, const std::string& map_id, std::string& res_body) { 
+bool Application::TryJoin(const std::string& user_name, const std::string& map_id, std::string& res_body) {
     // check map_id
-    std::string map;
-    if ( !GetMap(map_id, map) ) {
+    model::Map::Id id(map_id);
+    const model::Map* map = game_.FindMap(id);
+    if ( map == nullptr ) {
         return false;
     }
-    // add user_name & map_id
-    auto [token, id] = players_.Add(user_name, map_id);
+//std::cout << "Join 1: Map found with id = '" << *map->GetId() << "'" << std::endl;
+
+    // get or create GameSession
+    model::GameSession* session = game_.FindSession(id);
+    if ( session == nullptr ) {
+        session = game_.AddSession(map);
+    }
+//std::cout << "Join 2: Session Map id = '" << *map->GetId() << "'" << std::endl;
+
+    // create dog
+    model::Dog* dog = session->AddDog(user_name, DOG_ID++);
+//std::cout << "Dog '" << dog->GetName() << "' with id " << dog->GetId() << " was added !!! Dog ptr = " << std::hex << dog << ", dog size = " << sizeof(model::Dog) <<  std::endl;
+
+// test
+/*
+auto dogs = session->GetDogs();
+std::cout << "Join T1: Dogs count = " << dogs.size() << std::endl;
+size_t i = 0;
+for (auto& dg : dogs) {
+  std::cout << "         dog #" << i << ": name = '" << dg.GetName() << "', id = " << dg.GetId() << std::endl;
+  ++i;
+}
+auto  p = players_.GetPlayers();
+std::cout << "Join T2: players count = " << p.size() << std::endl;
+*/
+
+    // create player
+    std::string token = players_.Add(dog, session);
+    Player* player = players_.FindByToken(token);
+    if ( player == nullptr ) {
+        std::string err = "Can't get just created player";
+        throw std::runtime_error(err);
+    }
+//std::cout << "Join 4: Player added to map = '" << *player->GetSession()->GetMap()->GetId() << "' with dog = '" << player->GetDog()->GetName() << "'" << std::endl;
+
+    // set dog initial position
+/*
+    model::Point start = map->GetRoads()[0].GetStart();
+    player->GetDog()->SetPosition({(double)start.x, (double)start.y});   // TODO !!! потом убрать ???
+//std::cout << "Initial dog pos: x = " << start.x << ", y = " << start.y << std::endl;
+*/
+    // test
+/*
+    auto players = players_.GetPlayers();
+std::cout << "Join 5: players count = " << players.size() << std::endl;
+    for (auto& player : players) {
+        model::Dog* dog = player.GetDog();
+std::cout << "        dog ptr = " << std::hex << dog << std::endl;
+std::cout << "        Dog '" << dog->GetName() << "' at pos = {" << dog->GetPosition().x << ", " << dog->GetPosition().y
+                                   << "} with speed = {" << dog->GetSpeed().sx << ", " << dog->GetSpeed().sy
+                                      << "} and dir = '" << dog->GetDir() << "'" << std::endl;
+    }
+*/
+    // make response
     json::object result;
     result["authToken"] = token;
-    result["playerId"]  = id;
+    result["playerId"]  = player->GetDog()->GetId();
     res_body = json::serialize(result);
     return true;
 }
@@ -49,10 +105,10 @@ bool Application::GetPlayers(const std::string& token, std::string& res_body) {
     // get players_list
     auto players = players_.GetPlayers();
     json::object obj;
-    for (const auto& player : players) {
+    for (auto& player : players) {
         json::object sub_obj;
-        sub_obj["name"] = player.GetName();
-        obj[std::to_string(player.GetId())] = sub_obj;
+        sub_obj["name"] = player.GetDog()->GetName();
+        obj[std::to_string(player.GetDog()->GetId())] = sub_obj;
     }
     res_body = json::serialize(obj);
     return true;
@@ -66,18 +122,19 @@ bool Application::GetState(const std::string& token, std::string& res_body) {
     // get state
     auto players = players_.GetPlayers();
     json::object obj;
-    for (const auto& player : players) {
+    for (auto& player : players) {
         json::object sub_obj;
         json::array pos;
-        pos.push_back(player.GetPosition().x);
-        pos.push_back(player.GetPosition().y);
+        model::Dog* dog = player.GetDog();
+        pos.push_back(dog->GetPosition().x);
+        pos.push_back(dog->GetPosition().y);
         sub_obj["pos"] = pos;
         json::array speed;
-        speed.push_back(player.GetSpeed().sx);
-        speed.push_back(player.GetSpeed().sy);
+        speed.push_back(dog->GetSpeed().sx);
+        speed.push_back(dog->GetSpeed().sy);
         sub_obj["speed"] = speed;
-        sub_obj["dir"] = player.GetDir();
-        obj[std::to_string(player.GetId())] = sub_obj;
+        sub_obj["dir"] = dog->GetDir();
+        obj[std::to_string(dog->GetId())] = sub_obj;
     }
     json::object result;
     result["players"] = obj;
@@ -87,17 +144,12 @@ bool Application::GetState(const std::string& token, std::string& res_body) {
 
 bool Application::Move(const std::string& token, const std::string& move, std::string& res_body) {
     // try get player
-    std::shared_ptr<Player> player;
-    if ( !players_.GetPlayerByToken(token, player) ) {
+    Player* player = players_.FindByToken(token);
+    if ( player == nullptr ) {
         return false;
     }
     // get speed
-    const model::Map* map = game_.FindMap(model::Map::Id(player->GetMapId()));
-    if ( map == nullptr ) {
-        std::string err = "Can't find player's map";
-        throw std::runtime_error(err);
-    }
-    double speed = map->GetDogSpeed();
+    double speed = player->GetSession()->GetMap()->GetDogSpeed();
     // set speed
     model::Direction dir;
     if ( !model::StrToDir(move, dir) )
@@ -105,9 +157,14 @@ bool Application::Move(const std::string& token, const std::string& move, std::s
         std::string err = "Wrong move '" + move + "'";
         throw std::runtime_error(err);
     }
-    player->SetDogSpeed(speed, dir);
+    player->GetDog()->SetSpeed(speed, dir);
     res_body = "{}";
     return true;
+}
+
+std::string Application::Tick(uint32_t time_delta) {
+    game_.Tick(time_delta);
+    return "{}"s;
 }
 
 }   // namespace app

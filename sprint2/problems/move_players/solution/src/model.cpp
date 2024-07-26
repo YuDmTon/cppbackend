@@ -16,7 +16,7 @@ std::string DirToStr(Direction dir) {
         case SOUTH: return "D"s;
         case WEST:  return "L"s;
         case EAST:  return "R"s;
-        case STOP:  return "Stopped"s;
+        case STOP:  return ""s;
     }
     return "?"s;
 }
@@ -24,14 +24,19 @@ std::string DirToStr(Direction dir) {
 bool StrToDir(std::string str, Direction& dir) {
     if ( str.empty() ) {
         dir = STOP;
+        return true;
     } if ( str == "U" ) {
         dir = NORTH;
+        return true;
     } if ( str == "D" ) {
         dir = SOUTH;
+        return true;
     } if ( str == "L" ) {
         dir = WEST;
+        return true;
     } if ( str == "R" ) {
         dir = EAST;
+        return true;
     }
     //
     return false;
@@ -100,7 +105,8 @@ std::string Map::Serialize() const {
 }
 
 
-//// Model /////////////////////////////////////////////////////////////////////////
+
+//// Map ///////////////////////////////////////////////////////////////////////////
 void Map::AddOffice(Office office) {
     if (warehouse_id_to_index_.contains(office.GetId())) {
         throw std::invalid_argument("Duplicate warehouse");
@@ -117,6 +123,9 @@ void Map::AddOffice(Office office) {
     }
 }
 
+
+
+//// Game //////////////////////////////////////////////////////////////////////////
 void Game::AddMap(Map map) {
     const size_t index = maps_.size();
     if (auto [it, inserted] = map_id_to_index_.emplace(map.GetId(), index); !inserted) {
@@ -129,6 +138,26 @@ void Game::AddMap(Map map) {
             throw;
         }
     }
+}
+
+GameSession* Game::AddSession(const Map* map) {
+    const size_t index = sessions_.size();
+    if (auto [it, inserted] = map_id_to_session_.emplace(map->GetId(), index); !inserted) {
+        throw std::invalid_argument("GameSession with id "s + *map->GetId() + " already exists"s);
+    } else {
+        try {
+
+            sessions_.emplace_back(map);
+            return &sessions_.at(sessions_.size() - 1);
+        } catch (...) {
+            map_id_to_session_.erase(it);
+            throw;
+        }
+    }
+}
+
+void Game::Tick(uint32_t time_delta) {
+
 }
 
 }  // namespace model

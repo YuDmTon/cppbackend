@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+#include <list>
 #include <random>
 #include <string>
 #include <unordered_map>
@@ -9,75 +11,7 @@
 
 namespace model {
 
-//// Aux ///////////////////////////////////////////////////////////////////////////
-enum Direction {
-    NORTH,          // U
-    SOUTH,          // D
-    WEST,           // L
-    EAST,           // R
-    //
-    STOP
-};
-
-std::string DirToStr(Direction dir);
-bool StrToDir(std::string str, Direction& dir);
-
-struct Position {
-    double x = 0;
-    double y = 0;
-};
-
-struct Speed {
-    double sx = 0;
-    double sy = 0;
-};
-
-double GetRandom(double from, double to);
-
-//// Dog ///////////////////////////////////////////////////////////////////////////
-class Dog {
-public:
-    Dog() = default;
-    explicit Dog(std::string name, uint32_t id) : name_(name), id_(id) { 
-        pos_.x = GetRandom(0, 100);
-        pos_.y = GetRandom(0, 100);
-    }
-    const std::string GetName()     const { return name_; }
-    const uint32_t    GetId()       const { return id_; }
-    Position          GetPosition() const { return pos_; }
-    Speed             GetSpeed()    const { return speed_; }
-    std::string       GetDir()      const { return DirToStr(dir_); }
-    void SetSpeed(double speed, Direction dir) {
-        dir_ = dir;
-        switch ( dir_ ) {
-            case NORTH: speed_ = { 0,     -speed };
-            case SOUTH: speed_ = { 0,     speed  };
-            case WEST:  speed_ = {-speed, 0 };
-            case EAST:  speed_ = { speed, 0 };
-            case STOP:  speed_ = { 0,     0 };
-        }
-    }
-private:
-    std::string name_;
-    uint32_t    id_{0xFFFFFFFF};
-    //
-    Position    pos_{0, 0};
-    Speed       speed_{0, 0};
-    Direction   dir_{NORTH};
-};
-/*
-//// GameSession ///////////////////////////////////////////////////////////////////
-class Map;
-
-class GameSession {
-    explicit GameSession(std::shared_ptr<Map> map) : map_(map) { }
-    void AddDog(Dog dog) { dogs_[dog.GetId()] = dog; }
-private:
-    std::shared_ptr<Map>              map_;
-    std::unordered_map<uint32_t, Dog> dogs_;
-};
-*/
-//// Model /////////////////////////////////////////////////////////////////////////
+//// Model's Aux ///////////////////////////////////////////////////////////////////
 using Dimension = int;
 using Coord     = Dimension;
 
@@ -98,6 +32,9 @@ struct Offset {
     Dimension dx, dy;
 };
 
+
+
+//// Road //////////////////////////////////////////////////////////////////////////
 class Road {
     struct HorizontalTag {
         explicit HorizontalTag() = default;
@@ -142,6 +79,9 @@ private:
     Point end_;
 };
 
+
+
+//// Building //////////////////////////////////////////////////////////////////////
 class Building {
 public:
     explicit Building(Rectangle bounds) noexcept
@@ -156,6 +96,9 @@ private:
     Rectangle bounds_;
 };
 
+
+
+//// Office ////////////////////////////////////////////////////////////////////////
 class Office {
 public:
     using Id = util::Tagged<std::string, Office>;
@@ -184,6 +127,9 @@ private:
     Offset offset_;
 };
 
+
+
+//// Map ///////////////////////////////////////////////////////////////////////////
 class Map {
 public:
     using Id        = util::Tagged<std::string, Map>;
@@ -205,7 +151,7 @@ public:
         return name_;
     }
 
-    const double GetDogSpeed() const noexcept {
+    double GetDogSpeed() const noexcept {
         return dog_speed_;
     }
 
@@ -247,9 +193,97 @@ private:
     double dog_speed_;
 };
 
+
+
+//// Dog ///////////////////////////////////////////////////////////////////////////
+enum Direction {
+    NORTH,          // U
+    SOUTH,          // D
+    WEST,           // L
+    EAST,           // R
+    //
+    STOP
+};
+
+std::string DirToStr(Direction dir);
+bool StrToDir(std::string str, Direction& dir);
+
+struct Position {
+    double x = 0;
+    double y = 0;
+};
+
+struct Speed {
+    double sx = 0;
+    double sy = 0;
+};
+
+double GetRandom(double from, double to);
+
+class Dog {
+public:
+    Dog(std::string name, uint32_t id) : name_(name), id_(id) {
+/*
+std::cout << "Dog '" << name_ << "' with id " << id_
+<< " was  created at pos = {" << pos_.x << ", " << pos_.y
+<< "} with speed = {" << speed_.sx << ", " << speed_.sy
+<< "} and dir = '" << DirToStr(dir_) << "'" << std::endl;
+*/
+    }
+    //
+    const std::string GetName()     const { return name_; }
+    const uint32_t    GetId()       const { return id_; }
+    Position          GetPosition() const { return pos_; }
+    Speed             GetSpeed()    const { return speed_; }
+    std::string       GetDir()      const { return DirToStr(dir_); }
+    //
+    void SetPosition(Position pos) { pos_ = pos; }
+    void SetSpeed(double speed, Direction dir) {
+        dir_ = dir;
+        switch ( dir_ ) {
+            case NORTH: speed_ = { 0,     -speed };
+            case SOUTH: speed_ = { 0,     speed  };
+            case WEST:  speed_ = {-speed, 0 };
+            case EAST:  speed_ = { speed, 0 };
+            case STOP:  speed_ = { 0,     0 };
+        }
+    }
+private:
+    std::string name_;
+    uint32_t    id_;
+    //
+    Position    pos_{0, 0};
+    Speed       speed_{0, 0};
+    Direction   dir_{NORTH};
+};
+
+
+
+//// GameSession ///////////////////////////////////////////////////////////////////
+class GameSession {
+public:
+    explicit GameSession(const Map* map) : map_(map) { }
+    Dog* AddDog(std::string name, uint32_t id) { 
+        dogs_.emplace_back(name, id);
+        return &dogs_.back();//at(dogs_.size() - 1);
+    }
+    //
+    const Map* GetMap() const { return map_; }
+    const std::list<Dog>& GetDogs() const { return dogs_; }
+
+private:
+    const Map*       map_;
+    std::list<Dog> dogs_;
+};
+
+
+
+
+//// Game //////////////////////////////////////////////////////////////////////////
 class Game {
 public:
-    using Maps = std::vector<Map>;
+    using Maps     = std::vector<Map>;
+    using Sessions = std::vector<GameSession>;
 
     void AddMap(Map map);
 
@@ -264,12 +298,31 @@ public:
         return nullptr;
     }
 
+    //
+    GameSession* AddSession(const Map* map);
+
+    const Sessions& GetSessions() const noexcept {
+        return sessions_;
+    }
+
+    GameSession* FindSession(const Map::Id& id) noexcept {
+        if (auto it = map_id_to_session_.find(id); it != map_id_to_index_.end()) {
+            return &sessions_.at(it->second);
+        }
+        return nullptr;
+    }
+
+    void Tick(uint32_t time_delta);
+
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
-
-    std::vector<Map> maps_;
+    //
+    Maps         maps_;
     MapIdToIndex map_id_to_index_;
+    //
+    Sessions     sessions_;
+    MapIdToIndex map_id_to_session_;
 
 };
 

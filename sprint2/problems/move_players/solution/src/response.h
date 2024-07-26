@@ -73,7 +73,7 @@ struct Response {
         return Response::MakeResponse(http::status::bad_request, json::serialize(result), ContentType::APP_JSON, "no-cache"sv, ""sv, http_version, keep_alive);
     }
     static StringResponse Unauthorized(std::string code, std::string message, unsigned http_version, bool keep_alive) {
-std::cout << "code = '" << code << "', message = '" << message << "'" << std::endl;
+//std::cout << "code = '" << code << "', message = '" << message << "'" << std::endl;
         json::object result;
         result["code"]    = code;
         result["message"] = message;

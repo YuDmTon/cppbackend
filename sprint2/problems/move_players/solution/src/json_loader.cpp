@@ -81,7 +81,7 @@ model::Game LoadGame(const fs::path& config_file) {
                 map.AddOffice(offc);
             }
             game.AddMap(map);
-std::cout << map.Serialize() << std::endl;
+//std::cout << map.Serialize() << std::endl;
         }
     } catch (...) {
         throw std::runtime_error("Wrong config json");
