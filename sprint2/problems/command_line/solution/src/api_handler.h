@@ -43,7 +43,7 @@ public:
         if ( IsMoveRequest(target) )    { return MoveResponse(req); }
         if ( IsTickRequest(target) )    { return TickResponse(req); }
         //
-        return Response::BadRequest(http_version, keep_alive);
+        return Response::BadRequest("badRequest"s, "Unknown API target"s, http_version, keep_alive);
     }
 
 private:
@@ -96,7 +96,7 @@ private:
         // do
         std::string res_body;
         if ( app_.GetMap(map_id, res_body) ) {
-            return Response::MakeResponse(http::status::ok, res_body, ContentType::APP_JSON, ""sv, ""sv, http_version, keep_alive);
+            return Response::MakeResponse(http::status::ok, res_body, ContentType::APP_JSON, "no-cache"sv, ""sv, http_version, keep_alive);
         } else {
             return Response::NotFound("mapNotFound"s, "map not found"s, http_version, keep_alive);
         }
@@ -109,7 +109,7 @@ private:
         // do
         std::string res_body;
         app_.GetMaps(res_body);
-        return Response::MakeResponse(http::status::ok, res_body, ContentType::APP_JSON, ""sv, ""sv, http_version, keep_alive);
+        return Response::MakeResponse(http::status::ok, res_body, ContentType::APP_JSON, "no-cache"sv, ""sv, http_version, keep_alive);
     }
     // --- Join
     bool IsJoinRequest(std::string target) { return target == JOIN; }
