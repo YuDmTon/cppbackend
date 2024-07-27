@@ -26,18 +26,22 @@ fs::path GetAndCheckPath(const std::string& path_str, bool is_dir) {
     //
     fs::path srvr_path = fs::current_path();
     srvr_path += "/";
+//std::cout << "srvr_path = '" << srvr_path.string() << "'" << std::endl;
     //
     std::string path(path_str);
     if ( path[path.size() - 1] == '/' ) {
         path = path.substr(0, path.size() - 1);
     }
     fs::path game_path = path;
+//std::cout << "game_str  = '" << game_path.string() << "'" << std::endl;
     //
     if ( game_path.string()[0] != '/' ) {
         game_path  = srvr_path;
         game_path += path_str;
         game_path  = fs::weakly_canonical(game_path);
     }
+//std::cout << "game_path = '" << game_path.string() << "'" << std::endl;
+//std::cout << "game_path is directory = " << std::boolalpha << fs::is_directory(game_path) << std::endl << std::endl;
     //
     if ( !fs::exists(game_path) ) {
         std::string err = "Path '" + game_path.string() + "' doen't exist";

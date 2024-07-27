@@ -124,8 +124,11 @@ void Map::AddOffice(Office office) {
 
 //// Dog ///////////////////////////////////////////////////////////////////////////
 bool MoveComparator(const Movement& first, const Movement& second) {
-    return first.distanse < second.distanse && first.stop;
-};
+    if ( first.distanse < second.distanse ) {
+        return true;
+    }
+    return (int)first.stop > (int)second.stop;
+}
 
 void Dog::Move(uint32_t time_delta, const Map::Roads& roads) {
     if ( IsStopped() )
@@ -135,25 +138,25 @@ void Dog::Move(uint32_t time_delta, const Map::Roads& roads) {
     for (const auto& road : roads) {
         real_moves.push_back(MoveOnRoad(time, road));
     }
-std::cout << "Dog::Move() real_moves: ";
-for (auto rm : real_moves) std::cout << rm.ToString() << ", ";
-std::cout << std::endl;
+//std::cout << "Dog::Move() real_moves: ";
+//for (auto rm : real_moves) std::cout << rm.ToString() << ", ";
+//std::cout << std::endl;
     std::sort(real_moves.begin(), real_moves.end(), MoveComparator);
     Movement do_move = real_moves.back();
-std::cout << "            do move = " << do_move.ToString() << std::endl;
-std::cout << "            before = " << pos_.ToString() << std::endl;
+//std::cout << "            do move = " << do_move.ToString() << std::endl;
+//std::cout << "            before = " << pos_.ToString() << std::endl;
     pos_.x = pos_.x + speed_.sx * do_move.distanse;
     pos_.y = pos_.y + speed_.sy * do_move.distanse;
     if ( do_move.stop ) {
-std::cout << "            stop !" << std::endl;
+//std::cout << "            stop !" << std::endl;
         Stop();
     }
-std::cout << "            after  x = " << pos_.ToString() << std::endl;
+//std::cout << "            after  x = " << pos_.ToString() << std::endl;
 }
 
 Movement Dog::MoveOnRoad(double time, const Road& road) {
     bool must_stop = false;
-std::cout << "MoveOnRoad: " << road.GetStart() << ", " << road.GetEnd() << ", vertical = " << std::boolalpha << road.IsVertical() << std::endl;
+//std::cout << "MoveOnRoad: " << road.GetStart().ToString() << ", " << road.GetEnd().ToString() << ", vertical = " << std::boolalpha << road.IsVertical() << std::endl;
     if ( road.IsVertical() ) {
         // x
         double cur_x = pos_.x;
@@ -175,19 +178,21 @@ std::cout << "MoveOnRoad: " << road.GetStart() << ", " << road.GetEnd() << ", ve
             case NORTH:
                 y = cur_y + speed_.sy * time;
                 if ( y <= beg_y ) { y = beg_y; must_stop = true; }
-                return { std::abs(cur_y - y) / std::abs(speed_.sy), true };
+                return { std::abs(cur_y - y) / std::abs(speed_.sy), must_stop };
             case SOUTH:
                 y = cur_y + speed_.sy * time;
                 if ( y >= end_y ) { y = end_y; must_stop = true; }
-                return { std::abs(y - cur_y) / std::abs(speed_.sy), true };
+                return { std::abs(y - cur_y) / std::abs(speed_.sy), must_stop };
             case WEST:
                 x = cur_x + speed_.sx * time;
                 if ( x <= left ) { x = left; must_stop = true; }
-                return { std::abs(cur_x - x) / std::abs(speed_.sx), true };
+                return { std::abs(cur_x - x) / std::abs(speed_.sx), must_stop };
             case EAST:
                 x = cur_x + speed_.sx * time;
+//std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
                 if ( x >= right ) { x = right;  must_stop = true; }
-                return { std::abs(x - cur_x) / std::abs(speed_.sx), true };
+//std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
+                return { std::abs(x - cur_x) / std::abs(speed_.sx), must_stop };
         }
     } else {
         // y
@@ -205,27 +210,27 @@ std::cout << "MoveOnRoad: " << road.GetStart() << ", " << road.GetEnd() << ", ve
             return { 0.0, true };
         }
         // dir
-std::cout << "cur_x = " << cur_x << ", beg_x = " << beg_x << ", end_x = " << end_x << std::endl;
+//std::cout << "cur_x = " << cur_x << ", beg_x = " << beg_x << ", end_x = " << end_x << std::endl;
         double x, y;
         switch ( dir_ ) {
             case NORTH:
                 y = cur_y + speed_.sy * time;
                 if ( y <= down ) { y = down;  must_stop = true; }
-                return { std::abs(cur_y - y) / std::abs(speed_.sy), true};
+                return { std::abs(cur_y - y) / std::abs(speed_.sy), must_stop };
             case SOUTH:
                 y = cur_y + speed_.sy * time;
                 if ( y >= up ) { y = up;  must_stop = true; }
-                return { std::abs(y - cur_y) / std::abs(speed_.sy), true };
+                return { std::abs(y - cur_y) / std::abs(speed_.sy), must_stop };
             case WEST:
                 x = cur_x + speed_.sx * time;
                 if ( x <= beg_x ) { x = beg_x;  must_stop = true; }
-                return { std::abs(cur_x - x) / std::abs(speed_.sx), true };
+                return { std::abs(cur_x - x) / std::abs(speed_.sx), must_stop };
             case EAST:
                 x = cur_x + speed_.sx * time;
-std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
+//std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
                 if ( x >= end_x ) { x = end_x;  must_stop = true; }
-std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
-                return { std::abs(x - cur_x) / std::abs(speed_.sx), true };
+//std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
+                return { std::abs(x - cur_x) / std::abs(speed_.sx), must_stop };
         }
     }
     return { 0.0, true };

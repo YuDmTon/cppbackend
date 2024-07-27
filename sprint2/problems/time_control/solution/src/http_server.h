@@ -94,6 +94,19 @@ private:
         }
         return "UNKNOWN";
     }
+/*
+    template <typename Body, typename Fields>
+    std::string_view GetContentType(http::response<Body, Fields> response) {
+        std::cout << "--- GetContentType() ---" << std::endl;
+        for (const auto& header : response) {
+            std::cout << "  "sv << header.name_string() << ": "sv << header.value() << std::endl;
+            if ( header.name_string() == "Content-Type" ) {
+                return header.value();
+            }
+        }
+        return "null"sv;
+    }
+*/
     
 private:
     beast::tcp_stream  stream_; // tcp_stream содержит внутри себя сокет и добавляет поддержку таймаутов

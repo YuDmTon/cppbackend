@@ -23,24 +23,8 @@ public:
         bool        keep_alive   = req.keep_alive();
         std::string target(req.target());
         //
-//        DumpRequest(req);
-        //
         StringResponse response;
         if ( api_.CanAccept(target) ) { // request to API /////////////////////////////////
-//****** ЭТУ ЛЯМБДУ ПРИХОДИТСЯ ЗАКОММЕНТИРОВАТЬ, ИНАЧЕ ПРИЛОЖЕНИЕ ПАДАЕТ, ХОТЯ ЛЯМБДА НЕ ВЫЗЫВАЕТСЯ !!!! *************************
-            auto handle = [self = shared_from_this(),
-                           target,
-                           send,
-                           req = std::forward<decltype(req)>(req)] {
-                try {
-                    StringResponse response = self->api_.Response(req);
-                    return send(response);
-                } catch (...) {
-                    std::string err = "Can't process api request'" + target + "'";
-                    throw std::runtime_error(err);
-                }
-            };
-//*/
             response = api_.Response(req);  // without strand
         } else {                        // get static content /////////////////////////////
             std::string wanted_file = root_.string() + target;
@@ -73,12 +57,22 @@ public:
             }
         }
         //
-//        DumpResponse(response);
-        //
         send(response);
     }
 
 private:
+    ////
+    StringResponse HandleApiRequest(const StringRequest& req) {
+        StringResponse response(http::status::ok, 11);
+        return response;
+    }
+
+    StringResponse ReportServerError(unsigned version, bool keep_alive) {
+        StringResponse response(http::status::ok, 11);
+        return response;
+    }
+    ////
+
     // Возвращает true, если каталог path содержится внутри base.
     bool IsSubPath(fs::path path) {
         // Проверяем, что все компоненты base содержатся внутри path
