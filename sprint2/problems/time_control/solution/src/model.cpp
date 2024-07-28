@@ -130,6 +130,8 @@ bool MoveComparator(const Movement& first, const Movement& second) {
     return (int)first.stop > (int)second.stop;
 }
 
+inline int sign(double d) { return ( d > 0 ) ? 1 : ( ( d < 0 ) ? -1 : 0 ); }
+
 void Dog::Move(uint32_t time_delta, const Map::Roads& roads) {
     if ( IsStopped() )
         return;
@@ -145,8 +147,9 @@ void Dog::Move(uint32_t time_delta, const Map::Roads& roads) {
     Movement do_move = real_moves.back();
 //std::cout << "            do move = " << do_move.ToString() << std::endl;
 //std::cout << "            before = " << pos_.ToString() << std::endl;
-    pos_.x = pos_.x + speed_.sx * do_move.distanse;
-    pos_.y = pos_.y + speed_.sy * do_move.distanse;
+    pos_.x = pos_.x + sign(speed_.sx) * do_move.distanse;
+if  ( pos_.x < -ROAD_WIDTH / 2 ) pos_.x = -ROAD_WIDTH / 2;
+    pos_.y = pos_.y + sign(speed_.sy) * do_move.distanse;
     if ( do_move.stop ) {
 //std::cout << "            stop !" << std::endl;
         Stop();
@@ -155,12 +158,14 @@ void Dog::Move(uint32_t time_delta, const Map::Roads& roads) {
 }
 
 Movement Dog::MoveOnRoad(double time, const Road& road) {
+    const double EPS = 0.000001;
     bool must_stop = false;
 //std::cout << "MoveOnRoad: " << road.GetStart().ToString() << ", " << road.GetEnd().ToString() << ", vertical = " << std::boolalpha << road.IsVertical() << std::endl;
     if ( road.IsVertical() ) {
         // x
         double cur_x = pos_.x;
         double left  = (double)road.GetStart().x - ROAD_WIDTH / 2;
+if  ( left < -ROAD_WIDTH / 2 ) left = -ROAD_WIDTH / 2;
         double right = (double)road.GetStart().x + ROAD_WIDTH / 2;
         if ( cur_x < left || cur_x > right ) { // пёс не на этой дороге
             return { 0.0, true };
@@ -178,26 +183,28 @@ Movement Dog::MoveOnRoad(double time, const Road& road) {
             case NORTH:
                 y = cur_y + speed_.sy * time;
                 if ( y <= beg_y ) { y = beg_y; must_stop = true; }
-                return { std::abs(cur_y - y) / std::abs(speed_.sy), must_stop };
+                return { std::abs(cur_y - y), must_stop };
             case SOUTH:
                 y = cur_y + speed_.sy * time;
                 if ( y >= end_y ) { y = end_y; must_stop = true; }
-                return { std::abs(y - cur_y) / std::abs(speed_.sy), must_stop };
+                return { std::abs(y - cur_y), must_stop };
             case WEST:
                 x = cur_x + speed_.sx * time;
                 if ( x <= left ) { x = left; must_stop = true; }
-                return { std::abs(cur_x - x) / std::abs(speed_.sx), must_stop };
+if  ( x < -ROAD_WIDTH / 2 ) x = -ROAD_WIDTH / 2;
+                return { std::abs(cur_x - x), must_stop };
             case EAST:
                 x = cur_x + speed_.sx * time;
 //std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
                 if ( x >= right ) { x = right;  must_stop = true; }
 //std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
-                return { std::abs(x - cur_x) / std::abs(speed_.sx), must_stop };
+                return { std::abs(x - cur_x), must_stop };
         }
     } else {
         // y
         double cur_y = pos_.y;
         double down  = (double)road.GetStart().y - ROAD_WIDTH / 2;
+        if ( down < -0.4 ) down = -0.4;
         double up    = (double)road.GetStart().y + ROAD_WIDTH / 2; 
         if ( cur_y < down || cur_y > up ) { // пёс не на этой дороге
             return { 0.0, true };
@@ -216,21 +223,22 @@ Movement Dog::MoveOnRoad(double time, const Road& road) {
             case NORTH:
                 y = cur_y + speed_.sy * time;
                 if ( y <= down ) { y = down;  must_stop = true; }
-                return { std::abs(cur_y - y) / std::abs(speed_.sy), must_stop };
+                return { std::abs(cur_y - y), must_stop };
             case SOUTH:
                 y = cur_y + speed_.sy * time;
                 if ( y >= up ) { y = up;  must_stop = true; }
-                return { std::abs(y - cur_y) / std::abs(speed_.sy), must_stop };
+                return { std::abs(y - cur_y), must_stop };
             case WEST:
                 x = cur_x + speed_.sx * time;
                 if ( x <= beg_x ) { x = beg_x;  must_stop = true; }
-                return { std::abs(cur_x - x) / std::abs(speed_.sx), must_stop };
+                return { std::abs(cur_x - x), must_stop };
             case EAST:
                 x = cur_x + speed_.sx * time;
 //std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
                 if ( x >= end_x ) { x = end_x;  must_stop = true; }
 //std::cout << "EAST: x = " << x << ", must_stop = " << std::boolalpha << must_stop << std::endl;
-                return { std::abs(x - cur_x) / std::abs(speed_.sx), must_stop };
+if  ( x < -ROAD_WIDTH / 2 ) x = -ROAD_WIDTH / 2;
+                return { std::abs(x - cur_x), must_stop };
         }
     }
     return { 0.0, true };
