@@ -5,6 +5,8 @@
 
 namespace http_server {
 
+using namespace std::literals;
+
 void ReportError(beast::error_code ec, std::string_view what) {
     std::cerr << what << ": "sv << ec.message() << std::endl;
 }
@@ -29,7 +31,6 @@ void SessionBase::OnWrite(bool close, beast::error_code ec, [[maybe_unused]] std
 
 // асинхронное чтение запроса
 void SessionBase::Read() {
-    using namespace std::literals;
     // Очищаем запрос от прежнего значения (метод Read может быть вызван несколько раз)
     request_ = {};
     stream_.expires_after(30s);
@@ -41,8 +42,7 @@ void SessionBase::Read() {
 }
 
 void SessionBase::OnRead(beast::error_code ec, [[maybe_unused]] std::size_t bytes_read) {
-    using namespace std::literals;
-        req_time_ = boost::posix_time::microsec_clock::local_time();
+    req_time_ = boost::posix_time::microsec_clock::local_time();
     
     if (ec == http::error::end_of_stream) {
         // Нормальная ситуация - клиент закрыл соединение

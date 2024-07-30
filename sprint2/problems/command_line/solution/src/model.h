@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/json.hpp>
+
 #include <cmath>
 #include <iostream>
 #include <list>
@@ -12,6 +14,8 @@
 #include "tagged.h"
 
 namespace model {
+
+namespace json = boost::json;
 
 //// Model's Aux ///////////////////////////////////////////////////////////////////
 using Dimension = int;
@@ -81,6 +85,9 @@ public:
         return end_;
     }
 
+    json::object ToJson() const;
+    static Road FromJson(json::object json_road);
+
 private:
     Point start_;
     Point end_;
@@ -98,6 +105,9 @@ public:
     const Rectangle& GetBounds() const noexcept {
         return bounds_;
     }
+
+    json::object ToJson() const;
+    static Building FromJson(json::object json_building);
 
 private:
     Rectangle bounds_;
@@ -127,6 +137,9 @@ public:
     Offset GetOffset() const noexcept {
         return offset_;
     }
+
+    json::object ToJson() const;
+    static Office FromJson(json::object json_office);
 
 private:
     Id id_;
@@ -185,6 +198,7 @@ public:
     void AddOffice(Office office);
 
     std::string Serialize() const;
+    static Map FromJson(json::object json_map, double default_dog_speed);
 
 private:
     using OfficeIdToIndex = std::unordered_map<Office::Id, size_t, util::TaggedHasher<Office::Id>>;

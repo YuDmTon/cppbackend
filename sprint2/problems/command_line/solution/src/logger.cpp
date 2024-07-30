@@ -32,15 +32,6 @@ namespace logger {
 using namespace std::literals;
 
 void LogInit() {
-/*
-    logging::add_file_log(
-        keywords::file_name  = "game_server.log", 
-        keywords::format     = &GameLogFormatter,
-        keywords::open_mode  = std::ios_base::app | std::ios_base::out,
-        keywords::auto_flush = true
-    );  
-*/
-    //
     logging::add_console_log( 
         std::cout,
         keywords::format     = &GameLogFormatter,

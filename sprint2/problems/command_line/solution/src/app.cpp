@@ -44,7 +44,7 @@ bool Application::TryJoin(const std::string& user_name, const std::string& map_i
     }
 
     // create dog
-    model::Dog* dog = session->AddDog(user_name, DOG_ID++);
+    model::Dog* dog = session->AddDog(user_name, dog_id_++);
     // set dog initial position in random spawn model
     if ( randomize_spawn_ ) {
         auto roads         = map->GetRoads();

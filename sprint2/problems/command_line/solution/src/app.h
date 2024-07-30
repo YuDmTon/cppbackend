@@ -68,7 +68,6 @@ public:
     std::string Add(model::Dog* dog, const model::GameSession* session) {
         std::string  token = PlayerToken().Get();
         const size_t index = players_.size();
-////        players_.emplace_back(dog, session);
         Player player(dog, session);
         players_.push_back(player);
         //
@@ -98,13 +97,13 @@ private:
 
 //// Application //////////////////////////////////////////////////////////////////////////////////
 class Application {
-    uint32_t DOG_ID;
+    uint32_t dog_id_;
 public:
     explicit Application(model::Game& game, bool debug_mode, bool randomize_spawn) 
             : game_(game)
             , debug_mode_(debug_mode)
             , randomize_spawn_(randomize_spawn) { 
-        DOG_ID = 0; 
+        dog_id_ = 0;
     }
     
     // unauthorized
