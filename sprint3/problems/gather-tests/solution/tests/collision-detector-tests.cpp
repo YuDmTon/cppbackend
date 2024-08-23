@@ -41,14 +41,8 @@ protected:
 
 ////
 TEST_F(TestStand, FullTest) {
-    std::vector<Item>     items     = { {{2, 3.5}, 0.4}, {{4, 4}, 0.4}, {{4.5, 1.5}, 0.4}, {{4.5, 3.5}, 0.4}, {{5.5, 2.5}, 0.4}, {{5.5, 4.5}, 0.4}, {{6, 2}, 0.4}, {{8, 2.5}, 0.4} };
-    std::vector<Gatherer> gatherers = { {{0, 3}, {11, 3}, 0.6}, {{5, 6}, {5, 0}, 0.6} };
-    std::vector<bool>     takens(items.size());
-    std::cout << "items = " << items.size() << ", taken = " << takens.size() << ": ";
-    for (bool taken : takens) {
-        std::cout << std::boolalpha << taken << ", ";
-    }
-    std::cout << std::endl;
+    std::vector<Item>     items     = { {{2, 3.5}, 0.2}, {{4, 4}, 0.2}, {{4.5, 1.5}, 0.2}, {{4.5, 3.5}, 0.2}, {{5.5, 2.5}, 0.2}, {{5.5, 4.5}, 0.2}, {{6, 2}, 0.2}, {{8, 2.5}, 0.2} };
+    std::vector<Gatherer> gatherers = { {{0, 3}, {11, 3}, 0.3}, {{5, 6}, {5, 0}, 0.3} };
     SetItems(items);
     SetGatherers(gatherers);
     Run();
@@ -60,9 +54,8 @@ TEST_F(TestStand, FullTest) {
     for (size_t i = 0; i < gatherers.size(); ++i) {
         for (size_t j = 0; j < items.size(); ++j ) {
             CollectionResult cr = TryCollectPoint(gatherers[i].start_pos, gatherers[i].end_pos, items[j].position);
-            std::cout << "ratio = " << cr.proj_ratio << ", dist = " << cr.sq_distance;
-            if ( cr.IsCollected(0.3 + 0.2) && !takens[j] ) {
-                takens[j] = true;
+            std::cout << "item = " << j << ", gatherer = " << i << ", ratio = " << cr.proj_ratio << ", dist = " << cr.sq_distance;
+            if ( cr.IsCollected(0.3 + 0.2) ) {
                 ++events_count;
                 std::cout << ", collected+";
             }
