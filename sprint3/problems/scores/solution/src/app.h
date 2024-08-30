@@ -107,7 +107,7 @@ public:
     }
     
     // unauthorized
-    bool GetMap(const std::string& map_id, std::string& res_body);
+    std::optional<std::string> GetMap(const std::string& map_id);
     bool GetMaps(std::string& res_body);
     bool TryJoin(const std::string& user_name, const std::string& map_id, std::string& res_body);
     // authorized

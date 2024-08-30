@@ -8,13 +8,12 @@ namespace app {
 //// Application //////////////////////////////////////////////////////////////////////////////////
 
 // фасад для api_handler
-bool Application::GetMap(const std::string& map_id, std::string& res_body) {
+std::optional<std::string> Application::GetMap(const std::string& map_id) {
     const model::Map* map = game_.FindMap(model::Map::Id(map_id));
     if ( map == nullptr ) {
-        return false;
+        return std::nullopt;
     }
-    res_body = map->Serialize();
-    return true;
+    return { map->Serialize() };
 }
 
 bool Application::GetMaps(std::string& res_body) {
@@ -104,7 +103,8 @@ bool Application::GetState(const std::string& token, std::string& res_body) {
     }
     // get this player map
     const model::Map* map = player->GetSession()->GetMap();
-
+    assert(map);
+    
     // get state of only this player map
     // all dogs on the player map
     json::object dogs;
@@ -117,6 +117,7 @@ bool Application::GetState(const std::string& token, std::string& res_body) {
         //
         json::array json_pos;
         model::Dog* dog = player.GetDog();
+        assert(dog);
         json_pos.push_back(dog->GetPosition().x);
         json_pos.push_back(dog->GetPosition().y);
         json_dog["pos"] = json_pos;

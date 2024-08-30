@@ -6,9 +6,8 @@
 
 namespace http_handler {
 
-// УВАЖАЕМЫЙ РЕВЬЮЕР, ЗНАЮ ЧТО ЭТОТ КЛАСС РЕАЛИЗОВАН НЕКРАСИВО, ПРЯМОЛИНЕЙНО И СОДЕРЖИТ ПОВТОРЯЮЩИЙСЯ КОД.
-// Я ПРОСТО ФИЗИЧЕСКИ НЕ УСПЕЛ ЕГО ОТ РЕФАКТОРИТЬ И ПЕРЕПРОВЕРИТЬ.
-// ПРОШУ ЗА ЭТО ИЗВИНИТЬ МЕНЯ, НА КАНИКУЛАХ ЗАЙМУСЬ ЭТИМ
+std::string MethodToString(http::verb verb);
+
 class ApiHandler {
     // requesta to api
     constexpr static std::string_view API     = "/api"sv;
@@ -35,8 +34,6 @@ public:
     StringResponse Response(const StringRequest& req);
 
 private:
-    std::string MethodToString(http::verb verb);
-
     bool CheckToken(const StringRequest& req, std::string& token);
 
 private:

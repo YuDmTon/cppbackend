@@ -63,7 +63,6 @@ private:
             last_tick_ = this_tick;
             try {
                 handler_(delta);
-//std::cout << "Tick !" << std::endl;
             } catch (...) {
             }
             ScheduleTick();
@@ -191,12 +190,11 @@ int main(int argc, const char* argv[]) {
         if ( !args ) {
             return EXIT_SUCCESS;
         }
-//std::cout << "Command line arguments: tick = " << args->time_delta << ", config_file = '" << args->config_file << "', www_root = '" << args->www_root << ", randomize = " << std::boolalpha << args->randomize << std::endl;
 
         // 1. Загружаем карту из файла, строим модель игры, создаём приложение
         model::Game game = json_loader::LoadGame(GetAndCheckPath(args->config_file, false));
         fs::path    root = GetAndCheckPath(args->www_root, true);
-        bool  debug_mode = args->time_delta == 0 ? true : false;
+        bool  debug_mode = args->time_delta;
         app::Application app(game, debug_mode, args->randomize);
 
         // 2. Инициализируем io_context и создаём strand

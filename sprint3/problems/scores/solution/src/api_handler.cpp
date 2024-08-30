@@ -2,6 +2,18 @@
 
 namespace http_handler {
 
+std::string MethodToString(http::verb verb) {
+    switch ( verb ) {
+        case http::verb::get:  return "GET";
+        case http::verb::head: return "HEAD";
+        case http::verb::post: return "POST";
+        case http::verb::put:  return "PUT";
+    }
+    assert(false);
+    return "UNKNOWN";
+}
+
+
 StringResponse ApiHandler::Response(const StringRequest& req) {
     unsigned    http_version = req.version();
     bool        keep_alive   = req.keep_alive();
@@ -18,16 +30,6 @@ StringResponse ApiHandler::Response(const StringRequest& req) {
     return Response::BadRequest("badRequest"s, "Unknown API target"s, http_version, keep_alive);
 }
 
-std::string ApiHandler::MethodToString(http::verb verb) {
-    switch ( verb ) {
-        case http::verb::get:  return "GET";
-        case http::verb::head: return "HEAD";
-        case http::verb::post: return "POST";
-        case http::verb::put:  return "PUT";
-    }
-    return "UNKNOWN";
-}
-
 bool ApiHandler::CheckToken(const StringRequest& req, std::string& token) {
     for (const auto& header : req) {
         if ( "Authorization" == header.name_string() || "authorization" == header.name_string() ) {
@@ -38,9 +40,9 @@ bool ApiHandler::CheckToken(const StringRequest& req, std::string& token) {
     //
     bool is_ok = true;
     if ( token.size() == BEARER.size() + TOKEN_SIZE ) {
-        if ( token.find(BEARER) == 0 ) {
+        if ( token.starts_with(BEARER) ) {
             token = token.substr(BEARER.size());
-            size_t count = std::count_if(token.begin(), token.end(), [](unsigned char c){ return std::isxdigit(c); } );
+            std::count_if(token.begin(), token.end(), [](unsigned char c){ return std::isxdigit(c); } );
         } else {
             is_ok = false;
         }
@@ -62,9 +64,9 @@ StringResponse ApiHandler::MapResponse(const StringRequest& req) {
     std::string target(req.target());
     std::string map_id       = target.substr(13);
     // do
-    std::string res_body;
-    if ( app_.GetMap(map_id, res_body) ) {
-        return Response::MakeResponse(http::status::ok, res_body, ContentType::APP_JSON, "no-cache"sv, ""sv, http_version, keep_alive);
+    std::optional<std::string> res_body = app_.GetMap(map_id);
+    if ( res_body ) {
+        return Response::MakeResponse(http::status::ok, *res_body, ContentType::APP_JSON, "no-cache"sv, ""sv, http_version, keep_alive);
     }
     return Response::NotFound("mapNotFound"s, "map not found"s, http_version, keep_alive);
 }
@@ -94,7 +96,7 @@ StringResponse ApiHandler::JoinResponse(const StringRequest& req) {
         std::string  map(json.at("mapId").as_string());
         user_name  = user;
         map_id     = map;
-    } catch (...) {
+    } catch ( std::exception& ) {
         return Response::BadRequest("invalidArgument"s, "Join game request parse error"s, http_version, keep_alive);
     }
     // check userName
