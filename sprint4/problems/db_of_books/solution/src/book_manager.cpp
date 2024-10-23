@@ -78,9 +78,9 @@ int main(int argc, const char* argv[]) {
                 for (auto [id, title, author, year, isbn] : rt.query<int, std::string, std::string, int, std::optional<std::string>>("SELECT * FROM books"_zv)) {
                     json::object book;
                     book["id"]     = id;
-                    book["title"]  = id;
-                    book["author"] = id;
-                    book["year"]   = id;
+                    book["title"]  = title;
+                    book["author"] = author;
+                    book["year"]   = year;
                     if ( isbn ) {
                         book["ISBN"] = *isbn;
                     } else {
@@ -88,7 +88,9 @@ int main(int argc, const char* argv[]) {
                     }
                     all_books.push_back(book);
                 }
-                std::cout << json::serialize(all_books) << std::endl;
+                if ( all_books.size() != 0 ) {
+                    std::cout << json::serialize(all_books) << std::endl;
+                }
             } else if ( action == "exit" ) {
                 break;
             } else {
