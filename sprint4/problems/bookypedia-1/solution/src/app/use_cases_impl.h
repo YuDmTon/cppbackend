@@ -16,8 +16,8 @@ public:
     std::vector<std::pair<std::string, std::string>> GetAuthors() override;
 
     void AddBook(const std::string& author_id, const std::string& title, int publication_year) override;
-    std::vector<std::tuple<std::string, std::string, std::string, int>> GetBooks() override;
-    virtual std::vector<std::pair<std::string, int>> GetAuthorBooks(const std::string& author_id) override;
+    std::vector<std::pair<std::string, int>> GetBooks() override;
+    std::vector<std::pair<std::string, int>> GetAuthorBooks(const std::string& author_id) override;
 
 private:
     domain::AuthorRepository& authors_;

@@ -52,7 +52,7 @@ void BookRepositoryImpl::Save(const domain::Book& book) {
 std::vector<domain::Book> BookRepositoryImpl::Read() {
     std::vector<domain::Book> books;
     pqxx::read_transaction rt(connection_);
-    for (auto& [id, author_id, title, publication_year] : rt.query<std::string, std::string, std::string, int>("SELECT * FROM books ORDER BY publication_year, title"_zv)) {
+    for (auto& [id, author_id, title, publication_year] : rt.query<std::string, std::string, std::string, int>("SELECT * FROM books ORDER BY title"_zv)) {
         domain::Book book(domain::BookId::FromString(id), domain::AuthorId::FromString(author_id), title, publication_year);
         books.push_back(book);
     }

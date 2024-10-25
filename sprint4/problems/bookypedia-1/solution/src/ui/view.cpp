@@ -57,7 +57,11 @@ bool View::AddAuthor(std::istream& cmd_input) const {
         std::string name;
         std::getline(cmd_input, name);
         boost::algorithm::trim(name);
-        use_cases_.AddAuthor(std::move(name));
+        if ( name.empty() ) {
+            output_ << "Failed to add author"sv << std::endl;
+        } else {
+            use_cases_.AddAuthor(std::move(name));
+        }
     } catch (const std::exception&) {
         output_ << "Failed to add author"sv << std::endl;
     }
@@ -158,7 +162,7 @@ std::vector<detail::AuthorInfo> View::GetAuthors() const {
 
 std::vector<detail::BookInfo> View::GetBooks() const {
     std::vector<detail::BookInfo> books;
-    for (const auto& [id, author_id, title, publication_year] : use_cases_.GetBooks()) {
+    for (const auto& [title, publication_year] : use_cases_.GetBooks()) {
         detail::BookInfo book_info{title, publication_year};
         books.push_back(book_info);
     }

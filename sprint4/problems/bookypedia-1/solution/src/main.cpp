@@ -14,7 +14,7 @@ bookypedia::AppConfig GetConfigFromEnv() {
     bookypedia::AppConfig config;
     if (const auto* url = std::getenv(DB_URL_ENV_NAME)) {
         config.db_url = url;
-std::cout << "config.db_url = '" << config.db_url << "'" << std::endl;
+////std::cout << "config.db_url = '" << config.db_url << "'" << std::endl;
     } else {
         throw std::runtime_error(DB_URL_ENV_NAME + " environment variable not found"s);
     }

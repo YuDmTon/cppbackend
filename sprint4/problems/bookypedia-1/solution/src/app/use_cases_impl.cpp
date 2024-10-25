@@ -23,10 +23,10 @@ void UseCasesImpl::AddBook(const std::string& author_id, const std::string& titl
     books_.Save({BookId::New(), domain::AuthorId::FromString(author_id), title, publication_year});
 }
 
-std::vector<std::tuple<std::string, std::string, std::string, int>> UseCasesImpl::GetBooks() {
-    std::vector<std::tuple<std::string, std::string, std::string, int>> ret_books;
+std::vector<std::pair<std::string, int>> UseCasesImpl::GetBooks() {
+    std::vector<std::pair<std::string, int>> ret_books;
     for (const auto& book : books_.Read()) {
-        std::tuple ret_book{book.GetId().ToString(), book.GetAuthorId().ToString(), book.GetTitle(), book.GetPublicationYear()};
+        std::pair ret_book{book.GetTitle(), book.GetPublicationYear()};
         ret_books.emplace_back(ret_book);
     }
     return ret_books;
