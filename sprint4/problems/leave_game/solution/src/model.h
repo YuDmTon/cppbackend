@@ -564,7 +564,6 @@ public:
             : loot_gen_(std::chrono::milliseconds{period}, probability)
             , dog_retirement_time_(dog_retirement_time * MS_IN_MIN) {
         sessions_.reserve(SESSION_MAX);
-////std::cout << "model::Game::Game(): " << dog_retirement_time << " -> " << dog_retirement_time_ << std::endl;
     }
 
     void AddMap(Map map);

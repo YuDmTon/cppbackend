@@ -524,7 +524,6 @@ void GameSession::Tick(uint64_t curr_time, uint32_t time_delta, unsigned lost_co
         if ( !dog.IsRetired() ) {
             dog.Move(time_delta, roads);
         }
-////std::cout << dog.ToString("    ") << std::endl;
     }
     // prepare to gather
     GameProvider gp;

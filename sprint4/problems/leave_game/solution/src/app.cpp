@@ -28,18 +28,14 @@ std::string Player::ToString(std::string offs) const {
 //// Players //////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::tuple<std::string, int, int>> Players::GetRetiredPlayers() {
     // try find retired dogs
-////std::cout << "--- Players::GetRetiredPlayers():" << std::endl;
     std::vector<RetiredPlayer> retired_players;
     for (size_t idx = 0; idx < players_.size(); ++idx) {
         model::Dog* dog = players_[idx].GetDog();
-////std::cout << "    dog: name = '" << dog->GetName() << "', retired = " << std::boolalpha << dog->IsRetired();
         auto play_time = dog->GetPlayTime();
         if ( play_time.has_value() ) {
-////std::cout <<  ", play_time = " << play_time.value();
             RetiredPlayer retired_player{dog->GetName(), static_cast<int>(dog->GetScore()), static_cast<int>(play_time.value()), idx};
             retired_players.push_back(retired_player);
         }
-////std::cout << std::endl;
     }
     // process found retired dogs
     std::vector<std::tuple<std::string, int, int>> result;
@@ -264,7 +260,6 @@ bool Application::Move(const std::string& token, const std::string& move, std::s
 }
 
 std::string Application::Tick(uint32_t time_delta) {
-////std::cout << "--- Application::Tick(): curr_time = " << curr_time_ << std::endl;
     game_.Tick(curr_time_, time_delta);
     // --- is time to save state ?
     curr_time_ += time_delta;
@@ -280,7 +275,6 @@ std::string Application::Tick(uint32_t time_delta) {
 
 bool Application::GetRecords(std::string& res_body) {
     auto retired_players = db_.ReadRetiredPlayers();
-////std::cout << "--- Application::GetRecords(): curr_time = " << curr_time_ << std::endl;
     json::array arr;
     for (auto& retired_player : retired_players) {
         json::object item;

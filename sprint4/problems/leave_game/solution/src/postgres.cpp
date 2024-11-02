@@ -24,18 +24,13 @@ Db::Db() {
     );
     work.exec(R"(CREATE INDEX IF NOT EXISTS retired_players_multi_idx ON retired_players (score DESC, play_time_ms, name);)"_zv);
     work.commit();
-////std::cout << "postgres::Db::Db(): '" << db_url_ << "'" << std::endl;
-
 }
 
 void Db::SaveRetiredPlayers(std::vector<std::tuple<std::string, int, int>> retired_players) {
-////std::cout << "--- Db::SaveRetiredPlayers(): retired_players.size = " << retired_players.size() << std::endl;
     auto conn = conn_pool_.GetConnection();
     pqxx::work work{*conn};
     for (const auto& retired_player : retired_players) {
         auto id = boost::uuids::random_generator()();
-////std::cout << "write: " << id << ", '" << to_string(id) << "'" << std::endl;
-////std::cout << "write: '" << std::get<0>(retired_player) << "', " << std::get<1>(retired_player) << ", " << std::get<2>(retired_player) << std::endl;
         work.exec_params(R"(
                 INSERT INTO retired_players (id, name, score, play_time_ms) VALUES ($1, $2, $3, $4);
             )"_zv,

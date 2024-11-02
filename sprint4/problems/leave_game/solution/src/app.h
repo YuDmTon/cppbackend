@@ -102,9 +102,7 @@ class Players {
 public:
     Players() = default;
     std::string Add(model::Dog* dog, const model::GameSession* session) {
-//        std::string  token = PlayerToken().Get();
-std::string token = DebugToken();   // TODO !!!
-////std::cout << "--- Players::Add() token = '" << token << "'" << std::endl; // TODO !!!
+        std::string  token = PlayerToken().Get();
         const size_t index = players_.size();
         Player player(dog, session);
         players_.push_back(player);

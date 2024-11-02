@@ -111,7 +111,7 @@ struct Args {
 
     // Проверяем найденные параметры
     if ( vm.contains("help"s) ) {
-        ////std::cout << desc;
+        std::cout << desc;
         return std::nullopt;
     }
 
@@ -123,12 +123,10 @@ struct Args {
     }
 
     if ( !vm.contains("tick-period"s) ) {
-        ////std::cout << "Debug mode"s << std::endl;
         args.time_delta = 0;
     }
 
     if ( !vm.contains("randomize-spawn-points"s) ) {
-        ////std::cout << "Not randomize spawn mode"s << std::endl;
         args.randomize = false;
     }
 
