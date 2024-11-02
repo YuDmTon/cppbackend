@@ -1,5 +1,7 @@
 #include "api_handler.h"
 
+#include <algorithm>
+
 namespace http_handler {
 
 std::string MethodToString(http::verb verb) {
@@ -32,18 +34,19 @@ StringResponse ApiHandler::Response(const StringRequest& req) {
 }
 
 bool ApiHandler::CheckToken(const StringRequest& req, std::string& token) {
-    for (const auto& header : req) {
-        if ( "Authorization" == header.name_string() || "authorization" == header.name_string() ) {
-            token = header.value();
-            break;
-        }
+    auto header = std::find_if(req.begin(), req.end(), [](const auto& header){ return "Authorization" == header.name_string() || "authorization" == header.name_string(); } );
+    if ( header != req.end() ) {
+        token = header->value();
     }
     //
     bool is_ok = true;
     if ( token.size() == BEARER.size() + TOKEN_SIZE ) {
         if ( token.starts_with(BEARER) ) {
             token = token.substr(BEARER.size());
-            std::count_if(token.begin(), token.end(), [](unsigned char c){ return std::isxdigit(c); } );
+            auto xdigits_count = std::count_if(token.begin(), token.end(), [](unsigned char c){ return std::isxdigit(c); } );
+            if ( xdigits_count != TOKEN_SIZE ) {
+                is_ok = false;
+            }
         } else {
             is_ok = false;
         }
@@ -166,7 +169,7 @@ StringResponse ApiHandler::MoveResponse(const StringRequest& req) {
         json::object json = json::parse(req_body).as_object();
         std::string  str(json.at("move").as_string());
         move = str;
-    } catch (...) {
+    } catch ( std::exception& ) {
         return Response::BadRequest("invalidArgument"s, "No move feild"s, http_version, keep_alive);
     }
     if ( move != "U"s && move != "D"s && move != "R"s && move != "L"s && move != ""s  ) {
@@ -202,7 +205,7 @@ StringResponse ApiHandler::TickResponse(const StringRequest& req) {
     try {
         json::object json = json::parse(req_body).as_object();
         time_delta = json.at("timeDelta").as_int64();
-    } catch (...) {
+    } catch ( std::exception& ) {
         return Response::BadRequest("invalidArgument"s, "No timeDelta feild"s, http_version, keep_alive);
     }
     // do

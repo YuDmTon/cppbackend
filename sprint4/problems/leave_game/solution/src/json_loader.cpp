@@ -42,7 +42,7 @@ model::Game LoadGame(const fs::path& config_file) {
         unsigned default_bag_capacity = DEFAULT_BAG_CAPACITY;
         try {
             default_bag_capacity = config.at("defaultBagCapacity").as_int64();
-        } catch (...) { }
+        } catch ( std::exception& ) { }
 
         // try get loot generator config
         double period;
@@ -50,7 +50,7 @@ model::Game LoadGame(const fs::path& config_file) {
         try {
             period      = config.at("lootGeneratorConfig").as_object().at("period").as_double();
             probability = config.at("lootGeneratorConfig").as_object().at("probability").as_double();
-        } catch (...) {
+        } catch ( std::exception& ) {
             std::string err = "Can't get loot generator config";
             throw std::runtime_error(err);
         }
@@ -59,7 +59,7 @@ model::Game LoadGame(const fs::path& config_file) {
         double dog_retirement_time = DEFAULT_DOG_RETIREMENT_TME;
         try {
             dog_retirement_time = config.at("dogRetirementTime").as_double();
-        } catch (...) { }
+        } catch ( std::exception& ) { }
 
         // create game
         model::Game game(static_cast<unsigned>(period * MILLISECONDS), probability, dog_retirement_time);
@@ -93,7 +93,7 @@ model::Game LoadGame(const fs::path& config_file) {
         }
 
         return game;
-    } catch (...) {
+    } catch ( std::exception& ) {
         throw std::runtime_error("Wrong config json");
     }
 }

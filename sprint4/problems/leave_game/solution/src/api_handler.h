@@ -35,7 +35,7 @@ public:
     StringResponse Response(const StringRequest& req);
 
 private:
-    bool CheckToken(const StringRequest& req, std::string& token);
+    static bool CheckToken(const StringRequest& req, std::string& token);
 
 private:
     // --- Map by Id

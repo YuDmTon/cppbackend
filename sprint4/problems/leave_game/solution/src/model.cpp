@@ -75,13 +75,13 @@ LootType LootType::FromJson(json::object json_loot_type) {
     std::string color(COLOR_DEFAULT);
     try {
         rotation = json::value_to< int >(json_loot_type.at("rotation"));
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     try {
         color = json::value_to< std::string >(json_loot_type.at("color"));
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     try {
         value = json::value_to< unsigned >(json_loot_type.at("value"));
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     return LootType(name, file, type, scale, rotation, color, value);
 }
 
@@ -131,11 +131,11 @@ Road Road::FromJson(json::object json_road) {
     try {
         int x1 = json::value_to< int >(json_road.at("x1"));
         return Road(model::Road::HORIZONTAL, {x0, y0}, x1);
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     try {
         int y1 = json::value_to< int >(json_road.at("y1"));
         return Road(model::Road::VERTICAL, {x0, y0}, y1);
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     //
     throw std::runtime_error("Unknown road orientation");
 }
@@ -225,12 +225,12 @@ Map Map::FromJson(json::object json_map, double default_dog_speed, unsigned defa
     double dog_speed = default_dog_speed;
     try {
         dog_speed = json_map.at("dogSpeed").as_double();
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     //
     unsigned bag_capacity = default_bag_capacity;
     try {
         bag_capacity = json_map.at("bagCapacity").as_int64();
-    } catch (...) { }
+    } catch ( std::exception& ) { }
     //
     return Map{Map::Id(id), name, dog_speed, bag_capacity};
 }
@@ -245,7 +245,7 @@ void Map::AddOffice(Office office) {
     Office& o = offices_.emplace_back(std::move(office));
     try {
         warehouse_id_to_index_.emplace(o.GetId(), index);
-    } catch (...) {
+    } catch ( std::exception& ) {
         // Удаляем офис из вектора, если не удалось вставить в unordered_map
         offices_.pop_back();
         throw;
@@ -595,7 +595,7 @@ void Game::AddMap(Map map) {
     } else {
         try {
             maps_.emplace_back(std::move(map));
-        } catch (...) {
+        } catch ( std::exception& ) {
             map_id_to_index_.erase(it);
             throw;
         }
@@ -611,7 +611,7 @@ GameSession* Game::AddSession(const Map* map) {
             GameSession session(map);
             sessions_.push_back(session);
             return &sessions_.at(sessions_.size() - 1);
-        } catch (...) {
+        } catch ( std::exception& ) {
             map_id_to_session_.erase(it);
             throw;
         }
